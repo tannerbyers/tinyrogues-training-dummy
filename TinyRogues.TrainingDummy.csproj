@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>TinyRogues.TrainingDummy</AssemblyName>
+    <RootNamespace>TinyRogues.TrainingDummy</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx.Core" HintPath="lib/core/BepInEx.Core.dll" Private="false" />
+    <Reference Include="BepInEx.Unity.IL2CPP" HintPath="lib/core/BepInEx.Unity.IL2CPP.dll" Private="false" />
+    <Reference Include="Il2CppInterop.Runtime" HintPath="lib/core/Il2CppInterop.Runtime.dll" Private="false" />
+    <Reference Include="0Harmony" HintPath="lib/core/0Harmony.dll" Private="false" />
+
+    <Reference Include="Assembly-CSharp" HintPath="lib/interop/Assembly-CSharp.dll" Private="false" />
+    <Reference Include="UnityEngine" HintPath="lib/interop/UnityEngine.dll" Private="false" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="lib/interop/UnityEngine.CoreModule.dll" Private="false" />
+    <Reference Include="UnityEngine.IMGUIModule" HintPath="lib/interop/UnityEngine.IMGUIModule.dll" Private="false" />
+    <Reference Include="UnityEngine.InputLegacyModule" HintPath="lib/interop/UnityEngine.InputLegacyModule.dll" Private="false" />
+  </ItemGroup>
+</Project>
