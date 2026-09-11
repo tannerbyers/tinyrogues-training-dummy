@@ -2,6 +2,11 @@
 
 A lightweight training dummy mod for Tiny Rogues.
 
+[**Download the latest release**](/releases/latest)
+
+![Tiny Rogues Training Dummy showing live DPS, total damage, elapsed time, and peak damage](docs/assets/training-dummy-demo.gif)
+
+
 The mod adds a targetable, immortal training dummy to each floor's starting area so builds can be tested without affecting room combat.
 
 ## Features
