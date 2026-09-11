@@ -1,6 +1,6 @@
 {
   "name": "TrainingDummy",
-  "version_number": "1.0.0",
+  "version_number": "1.0.1",
   "website_url": "https://github.com/tannerbyers/tinyrogues-training-dummy",
   "description": "Adds an immortal training dummy and DPS meter to Tiny Rogues.",
   "dependencies": []

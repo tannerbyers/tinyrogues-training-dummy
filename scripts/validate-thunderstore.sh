@@ -48,7 +48,7 @@ if [ -n "$bad" ]; then
   exit 1
 fi
 
-python3 - "$TMP/manifest.json" <<'PY'
+python3 - "$TMP/manifest.json" "$VERSION" <<'PY'
 import json
 import sys
 from pathlib import Path
@@ -71,7 +71,15 @@ if missing:
         "ERROR: Missing manifest fields: " + ", ".join(missing)
     )
 
-print("Manifest JSON: OK")
+expected_version = sys.argv[2]
+
+if data["version_number"] != expected_version:
+    raise SystemExit(
+        f"ERROR: manifest version {data[version_number]} "
+        f"does not match plugin version {expected_version}"
+    )
+
+print(f"Manifest JSON: OK ({expected_version})")
 PY
 
 echo "Package contents: OK"
