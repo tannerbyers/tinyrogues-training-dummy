@@ -1,0 +1,8 @@
+obj/
+dist/
+lib/core/
+bin/
+.DS_Store
+backup/
+lib/interop/
+reverse/
