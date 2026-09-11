@@ -97,6 +97,10 @@ The measurement resets after the configured idle timeout or maximum measurement 
 
 Because the dummy records final damage received, conditional bonuses, critical hits, DOTs, procs and other resolved effects are naturally reflected in the result.
 
+## Roadmap
+
+Planned improvements are tracked in [ROADMAP.md](ROADMAP.md).
+
 ## Development
 
 Developer/test scripts are available in `scripts/` in the source repository but are not included in release ZIPs.
