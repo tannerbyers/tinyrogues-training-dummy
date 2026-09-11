@@ -1,125 +1,57 @@
 # Tiny Rogues Training Dummy
 
-A lightweight training dummy mod for Tiny Rogues.
+A simple training dummy and DPS meter for Tiny Rogues.
 
-[**Download the latest release**](/releases/latest)
+[**Download the latest release**](https://github.com/tannerbyers/tinyrogues-training-dummy/releases/latest)
 
-![Tiny Rogues Training Dummy showing live DPS, total damage, elapsed time, and peak damage](docs/assets/training-dummy-demo.gif)
+![Training Dummy demo](docs/assets/training-dummy-demo.gif)
 
+## What it does
 
-The mod adds a targetable, immortal training dummy to each floor's starting area so builds can be tested without affecting room combat.
+- Adds an immortal training dummy to each floor's starting area
+- Shows DPS, total damage, test duration, and peak hit
+- Works with normal attacks, crits, DOTs, procs, companions, and other damage effects
+- Stays out of normal room progression
 
-## Features
+Hit the dummy to start a test. The meter resets automatically after you stop attacking or the test window ends.
 
-- Training dummy on every floor
-- Normal weapon targeting, projectiles, DOTs and triggered damage
-- Effective DPS measured from final damage actually received
-- Total damage, measurement time and peak damage
-- Native Tiny Rogues world-text presentation
-- Configurable placement, timing and text scale
-- Windows and Steam Deck / Proton support
+## Install
 
-## Supported version
+Requires **BepInEx 6 for Unity IL2CPP**.
 
-- Tiny Rogues: **0.2.8.6**
-- BepInEx 6 Unity IL2CPP x64
+1. Download the latest release.
+2. Extract it into your Tiny Rogues game folder.
+3. Launch the game normally.
 
-Tiny Rogues is undergoing a major rewrite. The next major game update is expected to require a new version of this mod.
-
-## Safety
-
-The mod does **not** invoke Tiny Rogues' `SpawnTargetDummy` cheat-console command.
-
-Instead, it directly instantiates the game's existing target-dummy prefab and intercepts its enemy registration so it remains targetable without starting combat or locking doors.
-
-The plugin also checks Tiny Rogues' `CheatConsole.HasCheated` state before and after spawning the dummy and logs an error if the state changes.
-
-## Installation
-
-BepInEx 6 for Unity IL2CPP must already be installed.
-
-Extract the release ZIP into the Tiny Rogues game directory.
-
-The DLL should end up at:
+The mod file should be located at:
 
 `BepInEx/plugins/TinyRoguesTrainingDummy/TinyRogues.TrainingDummy.dll`
-
-Launch Tiny Rogues normally.
-
-To verify loading, check:
-
-`BepInEx/LogOutput.log`
-
-for:
-
-`Tiny Rogues Training Dummy ... loaded`
-
-## Steam Deck
-
-Install BepInEx for Tiny Rogues first, then extract this mod into the Tiny Rogues game directory in Desktop Mode.
-
-The plugin layout is the same:
-
-`BepInEx/plugins/TinyRoguesTrainingDummy/TinyRogues.TrainingDummy.dll`
-
-The mod has been developed and tested under Steam Deck / Proton.
 
 ## Configuration
 
-After the first launch, BepInEx creates:
+Optional settings are created after the first launch at:
 
 `BepInEx/config/tanner.tinyrogues.trainingdummy.cfg`
 
-Available options:
+The defaults are intended for normal use.
 
-- `ShowOverlay`
-- `TextScale`
-- `DpsWindowSeconds`
-- `IdleResetSeconds`
-- `DummyOffsetX`
-- `DummyOffsetY`
-- `DebugLogging`
+## Compatibility
 
-Defaults are intended for normal use.
+- Tiny Rogues **0.2.8.6**
+- Windows
+- Steam Deck / Proton
 
-## DPS behavior
+Game updates may require a new version of the mod.
 
-A measurement begins on the first damage event.
+## Uninstall
 
-The display reports:
+Delete:
 
-- DPS
-- total final damage
-- elapsed measurement time
-- peak single damage event
-
-The measurement resets after the configured idle timeout or maximum measurement window.
-
-Because the dummy records final damage received, conditional bonuses, critical hits, DOTs, procs and other resolved effects are naturally reflected in the result.
+`BepInEx/plugins/TinyRoguesTrainingDummy/`
 
 ## Roadmap
 
-Planned improvements are tracked in [ROADMAP.md](ROADMAP.md).
-
-## Development
-
-Developer/test scripts are available in `scripts/` in the source repository but are not included in release ZIPs.
-
-Useful scripts include:
-
-- `build-deploy-restart.sh`
-- `deploy-to-deck.sh`
-- `restart-game-on-deck.sh`
-- `skip-to-next-floor.sh`
-- `check-cheat-state.sh`
-- `tail-mod-logs.sh`
-- `package-release.sh`
-
-## Building from source
-
-The repository does not redistribute Tiny Rogues assemblies or generated IL2CPP interop assemblies.
-
-A local Tiny Rogues/BepInEx installation is required to populate the development references under `lib/`.
+See [ROADMAP.md](ROADMAP.md) for planned improvements.
 
 ## License
 
