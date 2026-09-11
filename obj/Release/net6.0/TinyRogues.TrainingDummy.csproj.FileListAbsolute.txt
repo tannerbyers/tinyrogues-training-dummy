@@ -1,0 +1,12 @@
+/Users/naultic/dev/tinyrogues-training-dummy/bin/Release/net6.0/TinyRogues.TrainingDummy.deps.json
+/Users/naultic/dev/tinyrogues-training-dummy/bin/Release/net6.0/TinyRogues.TrainingDummy.dll
+/Users/naultic/dev/tinyrogues-training-dummy/bin/Release/net6.0/TinyRogues.TrainingDummy.pdb
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.csproj.AssemblyReference.cache
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.GeneratedMSBuildEditorConfig.editorconfig
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.AssemblyInfoInputs.cache
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.AssemblyInfo.cs
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.csproj.CoreCompileInputs.cache
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.dll
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/refint/TinyRogues.TrainingDummy.dll
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/TinyRogues.TrainingDummy.pdb
+/Users/naultic/dev/tinyrogues-training-dummy/obj/Release/net6.0/ref/TinyRogues.TrainingDummy.dll
