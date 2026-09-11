@@ -2,6 +2,8 @@
 
 A simple training dummy and DPS meter for Tiny Rogues.
 
+Unofficial community mod for Tiny Rogues. Not affiliated with RubyDev.
+
 [**Download the latest release**](https://github.com/tannerbyers/tinyrogues-training-dummy/releases/latest)
 
 ![Training Dummy demo](docs/assets/training-dummy-demo.gif)
