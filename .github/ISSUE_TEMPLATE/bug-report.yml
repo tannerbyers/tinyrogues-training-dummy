@@ -1,0 +1,54 @@
+name: Bug report
+description: Report a problem with Tiny Rogues Training Dummy
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: input
+    id: game-version
+    attributes:
+      label: Tiny Rogues version
+      placeholder: "0.2.8.6"
+    validations:
+      required: true
+
+  - type: input
+    id: bepinex-version
+    attributes:
+      label: BepInEx version
+    validations:
+      required: true
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - Windows
+        - Steam Deck / Proton
+        - Linux / Proton
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: What did you expect, instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste relevant lines from BepInEx/LogOutput.log
+      render: text
