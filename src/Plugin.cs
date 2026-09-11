@@ -620,6 +620,9 @@ public sealed class Plugin : BasePlugin
         }
     }
 
+
+
+
     internal void CaptureTrainingDummy(
         Enemy enemy,
         EnemyManager manager)
@@ -981,8 +984,6 @@ public sealed class Plugin : BasePlugin
                 return;
             }
 
-            OnLeavingRoom();
-
             generator.GoToNextRoom(
                 target
             );
@@ -1013,11 +1014,23 @@ internal static class TrainingDummyRegistrationPatch
         EnemyManager __instance,
         Enemy enemy)
     {
+
         if (
             !Plugin
                 .IsSpawningTrainingDummy
         )
         {
+
+            return true;
+        }
+
+        if (enemy == null)
+        {
+            Plugin.Instance
+                ?.Log.LogError(
+                    "[DUMMY-REGISTER] Enemy was null"
+                );
+
             return true;
         }
 
@@ -1053,6 +1066,22 @@ internal static class TrainingDummyRegistrationPatch
 
         // Never run vanilla registration for our dummy.
         return false;
+    }
+}
+
+
+
+[HarmonyPatch(
+    typeof(DungeonGenerator),
+    nameof(DungeonGenerator.GoToNextRoom)
+)]
+internal static class DungeonRoomTransitionPatch
+{
+    [HarmonyPrefix]
+    private static void Prefix()
+    {
+        Plugin.Instance
+            ?.OnLeavingRoom();
     }
 }
 
@@ -1129,23 +1158,5 @@ internal static class SpawnedPlayerPatch
             ?.OnPlayerSpawned(
                 player
             );
-    }
-}
-
-
-[HarmonyPatch(
-    typeof(DungeonGenerator),
-    nameof(
-        DungeonGenerator
-            .GoToNextRoomCoroutine
-    )
-)]
-internal static class GoToNextRoomPatch
-{
-    [HarmonyPrefix]
-    private static void Prefix()
-    {
-        Plugin.Instance
-            ?.OnLeavingRoom();
     }
 }
