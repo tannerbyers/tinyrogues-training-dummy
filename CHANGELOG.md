@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Prepared the feature-complete benchmark workflow for release
+
 ## 1.0.1
 
 - Added clean dummy replacement between completed DPS benchmarks
