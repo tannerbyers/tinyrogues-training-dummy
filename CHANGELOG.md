@@ -2,7 +2,10 @@
 
 ## 1.0.2
 
-- Prepared the feature-complete benchmark workflow for release
+- Improved release and package readiness
+- Added contributor and community documentation
+- Clarified supported platforms and installation paths
+- Preserved the finalized training-dummy benchmark workflow
 
 ## 1.0.1
 
