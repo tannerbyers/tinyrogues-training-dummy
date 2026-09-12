@@ -38,7 +38,7 @@ The dummy appears in the starting/bonfire room and after a room is completed. It
 The normal release ZIP is already laid out for the game directory:
 
 1. Install **BepInEx 6 for Unity IL2CPP** for Tiny Rogues.
-2. Download `TinyRoguesTrainingDummy-1.0.3.zip` from [Releases](https://github.com/tannerbyers/tinyrogues-training-dummy/releases).
+2. Download `TinyRoguesTrainingDummy-1.0.4.zip` from [Releases](https://github.com/tannerbyers/tinyrogues-training-dummy/releases).
 3. Extract the ZIP into the Tiny Rogues game folder, merging its `BepInEx` folder.
 
 The final path must be:
@@ -51,7 +51,7 @@ Tiny Rogues/
 Launch the game once, then check `Tiny Rogues/BepInEx/LogOutput.log` for:
 
 ```text
-Tiny Rogues Training Dummy 1.0.3 loaded
+Tiny Rogues Training Dummy 1.0.4 loaded
 ```
 
 ### Steam Deck / Proton

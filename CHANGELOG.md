@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.4
+
+### Release cleanup
+
+- Removed obsolete Thunderstore packaging and references.
+- Finalized the GitHub release package and documentation.
+- Preserved the known limitation that native automatic targeting may not target the dummy.
+
 ## 1.0.3
 
 ### Improved
