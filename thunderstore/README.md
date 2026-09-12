@@ -1,16 +1,19 @@
 # Tiny Rogues Training Dummy
 
-Adds an immortal training dummy and DPS meter to each floors starting area.
+Adds an immortal training dummy and DPS meter to the initial floor-start/bonfire context.
 
 ## Features
 
 - DPS
-- Total damage
-- Test duration
-- Peak hit
 - Supports normal attacks, crits, DOTs, procs, and companions
-- Does not interfere with normal room progression
+- Reappears after completed combat rooms
+- Supports normal weapon and equipment changes while present
+- Does not mark the run as cheated
 - Configurable timing, placement, and display scale
+
+After a benchmark finalizes, the dummy is replaced with a fresh prefab instance. The mod does not perform global cleanup of projectiles or effects created before replacement.
+
+Manual aiming may be required; native controller auto-aim toward the dummy is not currently supported.
 
 ## Installation
 

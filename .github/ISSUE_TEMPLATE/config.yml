@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Contribution guidelines
+    url: https://github.com/tannerbyers/tinyrogues-training-dummy/blob/main/CONTRIBUTING.md
+    about: Read the build, testing, and pull request guidance before contributing.
+  - name: Security policy
+    url: https://github.com/tannerbyers/tinyrogues-training-dummy/blob/main/SECURITY.md
+    about: Report security concerns privately instead of opening a public issue.

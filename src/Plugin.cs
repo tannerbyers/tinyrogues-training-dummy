@@ -17,10 +17,9 @@ public sealed class Plugin : BasePlugin
 {
     public const string Guid = "tanner.tinyrogues.trainingdummy";
     public const string Name = "Tiny Rogues Training Dummy";
-    public const string Version = "1.0.1";
+    public const string Version = "1.0.2";
     public const string SupportedGameVersion = "0.2.8.6";
 
-    private const float DefaultDpsWindowSeconds = 10f;
     private const float DefaultIdleResetSeconds = 3f;
     private const float DefaultDummyOffsetX = 4.5f;
     private const float DefaultDummyOffsetY = 0f;
@@ -38,7 +37,6 @@ public sealed class Plugin : BasePlugin
     }
 
     private ConfigEntry<bool>? _showOverlayConfig;
-    private ConfigEntry<float>? _dpsWindowConfig;
     private ConfigEntry<float>? _idleResetConfig;
     private ConfigEntry<float>? _dummyOffsetXConfig;
     private ConfigEntry<float>? _dummyOffsetYConfig;
@@ -47,6 +45,7 @@ public sealed class Plugin : BasePlugin
 
     private TemporaryEvents? _temporaryEvents;
     private TemporaryEvents.DamageTakenHandler? _damageHandler;
+    private Il2CppSystem.Action? _afterCompletedRoomHandler;
 
     private global::Player.Player? _currentPlayer;
     private Enemy? _dummyEnemy;
@@ -60,21 +59,25 @@ public sealed class Plugin : BasePlugin
     private float _pendingSpawnDeadline;
     private float _nextSpawnRetry;
     private float _nextDevCommandCheck;
+    private bool _pendingPostCombatSpawn;
+    private bool _pendingBenchmarkReset;
 
     private float _totalDamage;
     private float _peakDamage;
     private float _firstDamageTime = -1f;
     private float _lastDamageTime = -1f;
+    private int _measurementEventCount;
+
+    // Completed and previous benchmark result state.
+
+    private bool _hasCompletedResult;
+    private float _completedDps;
+
+    private bool _hasPreviousResult;
+    private float _previousDps;
 
     internal bool ShowOverlay =>
         _showOverlayConfig?.Value ?? true;
-
-    internal float DpsWindowSeconds =>
-        Mathf.Max(
-            1f,
-            _dpsWindowConfig?.Value ??
-            DefaultDpsWindowSeconds
-        );
 
     internal float IdleResetSeconds =>
         Mathf.Max(
@@ -115,23 +118,53 @@ public sealed class Plugin : BasePlugin
     internal bool MeasurementStarted =>
         _firstDamageTime >= 0f;
 
-    internal float MeasurementTime =>
-        _firstDamageTime < 0f
-            ? 0f
-            : Mathf.Max(
-                Time.time - _firstDamageTime,
-                0f
-            );
+    internal bool HasCompletedResult =>
+        _hasCompletedResult;
 
-    internal float TotalDamage =>
-        _totalDamage;
+    internal float CompletedDps =>
+        _completedDps;
+
+    internal bool HasPreviousResult =>
+        _hasPreviousResult;
+
+    internal float PreviousDps =>
+        _previousDps;
+
+    internal float MeasurementTime
+    {
+        get
+        {
+            if (
+                _firstDamageTime < 0f ||
+                _measurementEventCount < 2 ||
+                _lastDamageTime <=
+                    _firstDamageTime
+            )
+            {
+                return 0f;
+            }
+
+            float observedDuration =
+                _lastDamageTime -
+                _firstDamageTime;
+
+            // first->last omits one event interval.
+            // Extend by the observed mean interval so short
+            // sessions are not artificially inflated.
+            return
+                observedDuration *
+                _measurementEventCount /
+                (_measurementEventCount - 1);
+        }
+    }
 
     internal float PeakDamage =>
         _peakDamage;
 
     internal bool DpsReady =>
         MeasurementStarted &&
-        MeasurementTime >= 0.25f;
+        _measurementEventCount >= 2 &&
+        MeasurementTime > 0f;
 
     internal float CurrentDps =>
         DpsReady
@@ -155,6 +188,17 @@ public sealed class Plugin : BasePlugin
         );
     }
 
+    public override bool Unload()
+    {
+        UnsubscribeFromTemporaryEvents();
+        CleanupDummy("plugin unload");
+
+        if (Instance == this)
+            Instance = null;
+
+        return true;
+    }
+
     private void BindConfig()
     {
         _showOverlayConfig = Config.Bind(
@@ -171,18 +215,12 @@ public sealed class Plugin : BasePlugin
             "Scale of the floating DPS text."
         );
 
-        _dpsWindowConfig = Config.Bind(
-            "Measurement",
-            "DpsWindowSeconds",
-            DefaultDpsWindowSeconds,
-            "Maximum length of a DPS measurement."
-        );
 
         _idleResetConfig = Config.Bind(
             "Measurement",
             "IdleResetSeconds",
             DefaultIdleResetSeconds,
-            "Seconds without damage before resetting."
+            "Seconds without damage before finalizing the result."
         );
 
         _dummyOffsetXConfig = Config.Bind(
@@ -398,9 +436,13 @@ public sealed class Plugin : BasePlugin
 
     private void QueueSpawn(
         Vector3 position,
-        string reason)
+        string reason,
+        bool postCombat = false,
+        bool benchmarkReset = false)
     {
         _pendingSpawn = true;
+        _pendingPostCombatSpawn = postCombat;
+        _pendingBenchmarkReset = benchmarkReset;
         _pendingSpawnPosition =
             position;
 
@@ -410,7 +452,7 @@ public sealed class Plugin : BasePlugin
         _nextSpawnRetry = 0f;
 
         DebugLog(
-            $"[DUMMY] Spawn queued: " +
+            $"[DUMMY] Spawn scheduled: " +
             $"{reason} at {position}"
         );
 
@@ -419,7 +461,7 @@ public sealed class Plugin : BasePlugin
 
     internal void Tick()
     {
-        TickDpsWindow();
+        TickMeasurementFinalization();
         TickDevCommand();
 
         if (!_pendingSpawn)
@@ -428,6 +470,8 @@ public sealed class Plugin : BasePlugin
         if (HasLiveDummy())
         {
             _pendingSpawn = false;
+            _pendingPostCombatSpawn = false;
+            _pendingBenchmarkReset = false;
             return;
         }
 
@@ -440,6 +484,8 @@ public sealed class Plugin : BasePlugin
         )
         {
             _pendingSpawn = false;
+            _pendingPostCombatSpawn = false;
+            _pendingBenchmarkReset = false;
 
             Log.LogWarning(
                 "[DUMMY] Spawn retry window expired"
@@ -584,12 +630,29 @@ public sealed class Plugin : BasePlugin
 
             _pendingSpawn = false;
 
-            ResetDps();
+            ClearActiveMeasurement();
 
             DebugLog(
                 $"[DUMMY] Ready at " +
                 $"{_dummyEnemy.gameObject.transform.position}"
             );
+
+            if (_pendingPostCombatSpawn)
+            {
+                DebugLog(
+                    "[DUMMY] Post-combat dummy spawned"
+                );
+            }
+
+            if (_pendingBenchmarkReset)
+            {
+                DebugLog(
+                    "[BENCHMARK] Fresh dummy spawned"
+                );
+            }
+
+            _pendingPostCombatSpawn = false;
+            _pendingBenchmarkReset = false;
         }
         catch (
             System.Exception ex)
@@ -647,7 +710,18 @@ public sealed class Plugin : BasePlugin
 
     internal void OnLeavingRoom()
     {
+        DebugLog(
+            "[ROOM] Leaving room"
+        );
+
         _pendingSpawn = false;
+        _pendingPostCombatSpawn = false;
+        _pendingBenchmarkReset = false;
+
+        if (MeasurementStarted)
+        {
+            FinalizeDpsResult();
+        }
 
         CleanupDummy(
             "room transition"
@@ -679,14 +753,14 @@ public sealed class Plugin : BasePlugin
 
         if (_dummyEnemy == null)
         {
-            ResetDps();
+            ClearActiveMeasurement();
             return;
         }
 
         try
         {
             DebugLog(
-                $"[DUMMY] Cleanup: {reason}"
+                $"[DUMMY] Cleaning up: {reason}"
             );
 
             if (
@@ -721,7 +795,47 @@ public sealed class Plugin : BasePlugin
         _dummyEnemy = null;
         _dummyEnemyManager = null;
 
-        ResetDps();
+        ClearActiveMeasurement();
+
+        DebugLog(
+            $"[DUMMY] Dummy cleaned: {reason}"
+        );
+    }
+
+    private void UnsubscribeFromTemporaryEvents()
+    {
+        if (
+            _temporaryEvents == null
+        )
+        {
+            return;
+        }
+
+        try
+        {
+            if (_damageHandler != null)
+            {
+                _temporaryEvents
+                    .remove_AfterDamageTaken(
+                        _damageHandler
+                    );
+            }
+
+            if (_afterCompletedRoomHandler != null)
+            {
+                _temporaryEvents
+                    .remove_AfterCompletedRoom(
+                        _afterCompletedRoomHandler
+                    );
+            }
+        }
+        catch
+        {
+        }
+
+        _temporaryEvents = null;
+        _damageHandler = null;
+        _afterCompletedRoomHandler = null;
     }
 
     internal void SubscribeToDamageEvents()
@@ -741,22 +855,8 @@ public sealed class Plugin : BasePlugin
             return;
         }
 
-        if (
-            _temporaryEvents != null &&
-            _damageHandler != null
-        )
-        {
-            try
-            {
-                _temporaryEvents
-                    .remove_AfterDamageTaken(
-                        _damageHandler
-                    );
-            }
-            catch
-            {
-            }
-        }
+        if (_temporaryEvents != null)
+            UnsubscribeFromTemporaryEvents();
 
         _temporaryEvents = current;
 
@@ -774,6 +874,113 @@ public sealed class Plugin : BasePlugin
         current.add_AfterDamageTaken(
             _damageHandler
         );
+
+        System.Action afterCompletedRoomCallback =
+            OnAfterCompletedRoom;
+
+        _afterCompletedRoomHandler =
+            afterCompletedRoomCallback;
+
+        current.add_AfterCompletedRoom(
+            _afterCompletedRoomHandler
+        );
+    }
+
+    private void OnAfterCompletedRoom()
+    {
+        DebugLog(
+            "[ROOM] AfterCompletedRoom received"
+        );
+
+        if (Instance != this)
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: plugin is not active"
+            );
+            return;
+        }
+
+        if (HasLiveDummy())
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: dummy already exists"
+            );
+            return;
+        }
+
+        if (_pendingSpawn)
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: spawn already pending"
+            );
+            return;
+        }
+
+        if (
+            _currentPlayer == null ||
+            _currentPlayer.gameObject == null
+        )
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: player unavailable"
+            );
+            return;
+        }
+
+        EnemyManager manager =
+            EnemyManager._instance;
+
+        if (manager == null)
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: EnemyManager unavailable"
+            );
+            return;
+        }
+
+        if (!manager.roomIsCompleted)
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: room is not completed"
+            );
+            return;
+        }
+
+        if (manager.roomIsBeingCompleted)
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: room completion is still in progress"
+            );
+            return;
+        }
+
+        DungeonGenerator generator =
+            DungeonGenerator
+                ._Instance_k__BackingField;
+
+        if (
+            generator == null ||
+            generator.CurrentRoomRect.width <= 0f ||
+            generator.CurrentRoomRect.height <= 0f
+        )
+        {
+            DebugLog(
+                "[DUMMY] Spawn skipped: current room unavailable"
+            );
+            return;
+        }
+
+        Vector3 position =
+            GetSafeDummyPosition(
+                _currentPlayer.gameObject
+                    .transform.position
+            );
+
+        QueueSpawn(
+            position,
+            "post-combat room",
+            true
+        );
     }
 
     private void OnAfterDamageTaken(
@@ -783,6 +990,11 @@ public sealed class Plugin : BasePlugin
         Actor damageDealer,
         GameObject damageDealingObject)
     {
+        if (_pendingBenchmarkReset)
+        {
+            return;
+        }
+
         if (
             !HasLiveDummy() ||
             damageReceiver == null ||
@@ -807,7 +1019,15 @@ public sealed class Plugin : BasePlugin
         float now =
             Time.time;
 
-        TickDpsWindow();
+        TickMeasurementFinalization();
+
+        if (
+            _hasCompletedResult &&
+            _firstDamageTime < 0f
+        )
+        {
+            BeginFreshMeasurement();
+        }
 
         if (
             _firstDamageTime < 0f
@@ -819,6 +1039,7 @@ public sealed class Plugin : BasePlugin
 
         _lastDamageTime = now;
         _totalDamage += damageTaken;
+        _measurementEventCount++;
 
         if (
             damageTaken >
@@ -830,7 +1051,7 @@ public sealed class Plugin : BasePlugin
         }
     }
 
-    internal void TickDpsWindow()
+    internal void TickMeasurementFinalization()
     {
         if (
             _firstDamageTime < 0f
@@ -848,25 +1069,147 @@ public sealed class Plugin : BasePlugin
                 IdleResetSeconds
         )
         {
-            ResetDps();
+            FinalizeDpsResult();
+            ResetDummyAfterBenchmark();
             return;
         }
 
-        if (
-            now - _firstDamageTime >=
-                DpsWindowSeconds
-        )
-        {
-            ResetDps();
-        }
     }
 
-    private void ResetDps()
+    private void ResetDummyAfterBenchmark()
+    {
+        if (
+            !_hasCompletedResult ||
+            _pendingBenchmarkReset ||
+            _pendingSpawn ||
+            !HasLiveDummy()
+        )
+        {
+            return;
+        }
+
+        Vector3 position;
+
+        try
+        {
+            position =
+                _dummyEnemy!
+                    .gameObject
+                    .transform.position;
+        }
+        catch
+        {
+            return;
+        }
+
+        _pendingBenchmarkReset = true;
+
+        DebugLog(
+            "[BENCHMARK] Dummy reset requested"
+        );
+
+        CleanupDummy(
+            "benchmark reset"
+        );
+
+        DebugLog(
+            "[BENCHMARK] Old dummy destroyed"
+        );
+
+        QueueSpawn(
+            position,
+            "benchmark reset",
+            benchmarkReset: true
+        );
+    }
+
+    private void FinalizeDpsResult()
+    {
+        if (_firstDamageTime < 0f)
+            return;
+
+        float duration =
+            Mathf.Max(
+                MeasurementTime,
+                0.25f
+            );
+
+        float dps =
+            _totalDamage /
+            duration;
+
+        if (_hasCompletedResult)
+        {
+            _previousDps =
+                _completedDps;
+
+            _hasPreviousResult =
+                true;
+        }
+
+        _completedDps =
+            dps;
+
+        _hasCompletedResult =
+            true;
+
+        DebugLog(
+            $"[DPS] Finalized: " +
+            $"dps={_completedDps:F2} " +
+            $"damage={_totalDamage:F2} " +
+            $"duration={duration:F3}"
+        );
+
+        _totalDamage = 0f;
+        _peakDamage = 0f;
+        _firstDamageTime = -1f;
+        _lastDamageTime = -1f;
+        _measurementEventCount = 0;
+
+
+    }
+
+    private void BeginFreshMeasurement()
+    {
+        if (_hasCompletedResult)
+        {
+            _previousDps =
+                _completedDps;
+
+            _hasPreviousResult =
+                true;
+        }
+
+        _hasCompletedResult =
+            false;
+
+        _totalDamage = 0f;
+        _peakDamage = 0f;
+        _firstDamageTime = -1f;
+        _lastDamageTime = -1f;
+        _measurementEventCount = 0;
+
+
+    }
+
+    private void ClearActiveMeasurement()
     {
         _totalDamage = 0f;
         _peakDamage = 0f;
         _firstDamageTime = -1f;
         _lastDamageTime = -1f;
+        _measurementEventCount = 0;
+    }
+
+    private void ResetDps()
+    {
+        ClearActiveMeasurement();
+
+        _hasCompletedResult = false;
+        _completedDps = 0f;
+        _hasPreviousResult = false;
+        _previousDps = 0f;
+
     }
 
     private void TickDevCommand()
@@ -1000,6 +1343,7 @@ public sealed class Plugin : BasePlugin
             );
         }
     }
+
 }
 
 
@@ -1042,18 +1386,9 @@ internal static class TrainingDummyRegistrationPatch
                     __instance
                 );
 
-            // Keep the dummy targetable without starting combat or locking doors.
-            if (
-                __instance.aliveEnemies != null &&
-                !__instance
-                    .aliveEnemies
-                    .Contains(enemy)
-            )
-            {
-                __instance
-                    .aliveEnemies
-                    .Add(enemy);
-            }
+            // Do not register the training dummy as an alive room enemy.
+            // Inventory/combat systems use EnemyManager alive-enemy state,
+            // so the dummy must remain outside that bookkeeping.
         }
         catch (
             System.Exception ex)
