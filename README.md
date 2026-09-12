@@ -4,7 +4,7 @@ Tiny Rogues Training Dummy adds a safe training target for comparing builds duri
 
 **Core loop:** finish a fight → change gear → test it on the dummy → compare DPS → continue.
 
-[Download the latest release](https://github.com/tannerbyers/tinyrogues-training-dummy/releases/latest) · [Thunderstore package](https://thunderstore.io/c/tiny-rogues/p/Tanner_Byers/TrainingDummy/)
+[Download the latest release](https://github.com/tannerbyers/tinyrogues-training-dummy/releases/latest)
 
 ![Training Dummy demo](docs/assets/training-dummy-demo.gif)
 
@@ -18,7 +18,7 @@ Tiny Rogues Training Dummy adds a safe training target for comparing builds duri
 - No cheat-state activation
 - Windows and Steam Deck / Proton support
 
-The dummy is stationary. Manual aiming works normally, but Tiny Rogues' native controller auto-aim does not target it.
+The dummy is stationary. Manual aiming works normally, but Tiny Rogues' native controller auto-aim, companions, and some automatic targeting may not target it. DPS can therefore be incomplete for builds that rely on those systems.
 
 ## How a benchmark works
 
@@ -54,8 +54,6 @@ Launch the game once, then check `Tiny Rogues/BepInEx/LogOutput.log` for:
 Tiny Rogues Training Dummy 1.0.3 loaded
 ```
 
-You can also install the Thunderstore package with Gale, r2modman, or another compatible manager.
-
 ### Steam Deck / Proton
 
 Use the same release ZIP and preserve the same `BepInEx/plugins/TinyRoguesTrainingDummy/` layout inside the Proton prefix used by Tiny Rogues. This repository's supported setup uses `~/tinyrogues/`, so its log is:
@@ -64,7 +62,7 @@ Use the same release ZIP and preserve the same `BepInEx/plugins/TinyRoguesTraini
 ~/tinyrogues/BepInEx/LogOutput.log
 ```
 
-Confirm the startup line above after launching the game. A Thunderstore-compatible manager is also supported when it manages the same Proton game prefix.
+Confirm the startup line above after launching the game.
 
 ## Troubleshooting
 
@@ -86,7 +84,7 @@ BepInEx/plugins/TinyRoguesTrainingDummy/TinyRogues.TrainingDummy.dll
 
 ### Finding logs on Steam Deck
 
-For the supported repository setup, inspect `~/tinyrogues/BepInEx/LogOutput.log` in the Proton environment. If using a manager, use the profile's BepInEx folder for that same game prefix.
+For the supported repository setup, inspect `~/tinyrogues/BepInEx/LogOutput.log` in the Proton environment.
 
 ## Compatibility
 

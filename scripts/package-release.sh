@@ -27,9 +27,16 @@ cp LICENSE "$STAGE/"
 
 cd dist
 
+TEMP_ZIP="$ROOT/dist/$NAME.zip.$$"
+
 zip -qr \
-  "$NAME.zip" \
-  "$NAME"
+  "$TEMP_ZIP" \
+  "$NAME/LICENSE" \
+  "$NAME/BepInEx/plugins/TinyRoguesTrainingDummy/TinyRogues.TrainingDummy.dll" \
+  "$NAME/CHANGELOG.md" \
+  "$NAME/README.md"
+
+mv -f "$TEMP_ZIP" "$ROOT/dist/$NAME.zip"
 
 echo
 echo "Created: dist/$NAME.zip"

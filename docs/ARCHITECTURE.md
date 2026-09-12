@@ -8,10 +8,8 @@ The plugin creates Tiny Rogues' own target-dummy prefab at safe lifecycle points
 
 - `src/Plugin.cs` — plugin lifecycle, configuration, dummy spawn/cleanup, Harmony patches, exact-instance damage capture, and benchmark state.
 - `src/DpsOverlay.cs` — native-font world-space `TRAINING DUMMY`, `DPS`, and `LAST` display and cleanup.
-- `scripts/package-all.sh` — builds and validates both the normal release and Thunderstore packages.
+- `scripts/package-all.sh` — builds and validates the normal release package.
 - `scripts/package-release.sh` — creates the game-folder release ZIP.
-- `scripts/package-thunderstore.sh` — creates the manager-ready package.
-- `scripts/validate-thunderstore.sh` — checks package contents and version metadata.
 
 ## Dummy lifecycle
 
@@ -51,7 +49,7 @@ Run:
 ./scripts/package-all.sh
 ```
 
-This generates `dist/TinyRoguesTrainingDummy-<version>.zip` and `dist/thunderstore/TrainingDummy-<version>.zip`. Packages contain the DLL and player-facing metadata, not local interop assemblies.
+This generates `dist/TinyRoguesTrainingDummy-<version>.zip`. The package contains the DLL and player-facing metadata, not local interop assemblies.
 
 ## Testing
 
@@ -74,6 +72,6 @@ After a Tiny Rogues update, verify these integration points first: `EnemyManager
 
 ## Known architectural limitations
 
-- Native controller auto-aim currently does not target the dummy.
+- Native controller auto-aim, companions, and some automatic targeting may not target the dummy; DPS can be incomplete for builds that rely on those systems.
 - Full unusual damage-path validation remains tracked in issue #4.
-- Multi-target mode is deferred.
+- Multi-target mode is not supported.

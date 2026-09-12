@@ -31,7 +31,7 @@
 - Fixed the training dummy persisting after leaving a floor starting room
 - Preserved benchmark history across target replacement and room transitions
 - Verified final damage tracking, combat-state behavior, inventory behavior, and target defensive properties
-- Native controller auto-aim remains intentionally deferred; manual aiming may be required
+- Native controller auto-aim and some automatic targeting may not target the dummy; manual aiming may be required
 
 ## 1.0.0
 

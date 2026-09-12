@@ -36,7 +36,7 @@ For the runtime map and invariants, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE
 
 The training dummy is deliberately not registered in `EnemyManager.aliveEnemies`. This keeps room completion, combat state, and weapon/equipment inventory behavior normal. Changes must preserve that isolation. Do not restore auto-aim by adding it to the enemy manager.
 
-The dummy is manually targetable and damageable. Native controller auto-aim is deferred. Do not add the dummy to the enemy manager or introduce broad targeting patches without an issue and runtime evidence.
+The dummy is manually targetable and damageable. Native controller auto-aim, companions, and some automatic targeting may not target it. Do not add the dummy to the enemy manager or introduce broad targeting patches without an issue and runtime evidence.
 
 ## Pull requests
 
