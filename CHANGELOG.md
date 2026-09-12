@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.3
+
+### Improved
+
+- Clearer Windows and Steam Deck / Proton installation and troubleshooting guidance
+- Improved contributor and developer documentation
+
+### Changed
+
+- Removed an internal development helper from the production plugin
+- General runtime cleanup with no intentional change to the core training-dummy workflow
+
+### Validation
+
+- Steam Deck regression smoke test passed after the cleanup
+- Benchmarking, room lifecycle, post-combat spawning, equipment swapping, and clean-target reset behavior remain intact
+
 ## 1.0.2
 
 - Improved release and package readiness
