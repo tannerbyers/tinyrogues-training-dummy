@@ -4,7 +4,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-rm -rf bin obj
 dotnet build -c Release
 
 VERSION="$(
@@ -15,7 +14,6 @@ VERSION="$(
 NAME="TinyRoguesTrainingDummy-$VERSION"
 STAGE="dist/$NAME"
 
-rm -rf "$STAGE"
 mkdir -p \
   "$STAGE/BepInEx/plugins/TinyRoguesTrainingDummy"
 
@@ -28,8 +26,6 @@ cp CHANGELOG.md "$STAGE/"
 cp LICENSE "$STAGE/"
 
 cd dist
-
-rm -f "$NAME.zip"
 
 zip -qr \
   "$NAME.zip" \

@@ -2,9 +2,12 @@
 
 ## 1.0.1
 
+- Added clean dummy replacement between completed DPS benchmarks
+- Added safe post-combat dummy spawning for gear comparisons
 - Fixed the training dummy persisting after leaving a floor starting room
-- Verified final damage tracking against the game damage pipeline
-- Verified combat-state behavior and target defensive properties
+- Preserved benchmark history across target replacement and room transitions
+- Verified final damage tracking, combat-state behavior, inventory behavior, and target defensive properties
+- Native controller auto-aim remains intentionally deferred; manual aiming may be required
 
 ## 1.0.0
 

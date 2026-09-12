@@ -7,6 +7,10 @@ namespace TinyRogues.TrainingDummy;
 
 public sealed class DpsOverlay : MonoBehaviour
 {
+    // Restrained TMP colors for hierarchy while preserving the game's native font/material.
+    private const string AccentColor = "#E8C56A";
+    private const string MutedColor = "#B8B8B8";
+
     private static readonly Vector3 LabelOffset =
         new Vector3(
             0f,
@@ -279,29 +283,74 @@ public sealed class DpsOverlay : MonoBehaviour
         Plugin plugin)
     {
         if (
+            plugin.HasCompletedResult
+        )
+        {
+            string last =
+                "";
+
+            if (
+                plugin.HasPreviousResult &&
+                plugin.PreviousDps > 0f
+            )
+            {
+                last =
+                    $"\n<size=58%>" +
+                    $"<color={MutedColor}>" +
+                    $"LAST  {plugin.PreviousDps:F0}" +
+                    "</color></size>";
+            }
+
+            return
+                $"<size=62%><color={MutedColor}>" +
+                "TRAINING DUMMY" +
+                "</color></size>\n" +
+                $"<color={AccentColor}>" +
+                $"DPS  {plugin.CompletedDps:F0}" +
+                "</color>" +
+                last;
+        }
+
+        if (
             !plugin.MeasurementStarted
         )
         {
             return
-                "<size=70%>TRAINING DUMMY</size>\n" +
-                "HIT TO TEST DPS";
+                $"<size=62%><color={MutedColor}>" +
+                "TRAINING DUMMY" +
+                "</color></size>\n" +
+                $"<size=58%><color={MutedColor}>" +
+                "HIT TO TEST DPS" +
+                "</color></size>";
         }
 
-        if (!plugin.DpsReady)
+        string previous =
+            "";
+
+        if (
+            plugin.HasPreviousResult &&
+            plugin.PreviousDps > 0f
+        )
         {
-            return
-                "<size=70%>TRAINING DUMMY</size>\n" +
-                "DPS  --";
+            previous =
+                $"\n<size=58%>" +
+                $"<color={MutedColor}>" +
+                $"LAST  {plugin.PreviousDps:F0}" +
+                "</color></size>";
         }
 
         return
-            "<size=70%>TRAINING DUMMY</size>\n" +
-            $"DPS  {plugin.CurrentDps:F0}\n" +
-            "<size=65%>" +
-            $"{plugin.TotalDamage:F0} DMG · " +
-            $"{plugin.MeasurementTime:F1}s · " +
-            $"PEAK {plugin.PeakDamage:F0}" +
-            "</size>";
+            $"<size=62%><color={MutedColor}>" +
+            "TRAINING DUMMY" +
+            "</color></size>\n" +
+            $"<color={AccentColor}>" +
+            (
+                plugin.DpsReady
+                    ? $"DPS  {plugin.CurrentDps:F0}"
+                    : "DPS  --"
+            ) +
+            "</color>" +
+            previous;
     }
 
     private void UpdateText(

@@ -6,3 +6,7 @@ bin/
 backup/
 lib/interop/
 reverse/
+
+# Local development helpers
+scripts/dev-state.sh
+scripts/test-current.sh

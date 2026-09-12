@@ -75,7 +75,7 @@ expected_version = sys.argv[2]
 
 if data["version_number"] != expected_version:
     raise SystemExit(
-        f"ERROR: manifest version {data[version_number]} "
+        f"ERROR: manifest version {data['version_number']} "
         f"does not match plugin version {expected_version}"
     )
 
