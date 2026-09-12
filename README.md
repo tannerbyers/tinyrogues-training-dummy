@@ -61,6 +61,10 @@ Delete:
 
 See [ROADMAP.md](ROADMAP.md) for planned improvements.
 
+## Contributing
+
+Bug reports, focused feature proposals, documentation, and runtime validation are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), then check the issues marked [`good first issue`](https://github.com/tannerbyers/tinyrogues-training-dummy/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) or [`help wanted`](https://github.com/tannerbyers/tinyrogues-training-dummy/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22).
+
 ## License
 
 MIT
