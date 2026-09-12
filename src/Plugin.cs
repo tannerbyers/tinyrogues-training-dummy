@@ -25,9 +25,6 @@ public sealed class Plugin : BasePlugin
     private const float DefaultDummyOffsetY = 0f;
     private const float RoomEdgePadding = 1.25f;
 
-    private const string DevCommandFile =
-        "TinyRogues.TrainingDummy.dev-command.txt";
-
     internal static Plugin? Instance;
 
     internal static bool IsSpawningTrainingDummy
@@ -58,7 +55,6 @@ public sealed class Plugin : BasePlugin
     private Vector3 _pendingSpawnPosition;
     private float _pendingSpawnDeadline;
     private float _nextSpawnRetry;
-    private float _nextDevCommandCheck;
     private bool _pendingPostCombatSpawn;
     private bool _pendingBenchmarkReset;
 
@@ -462,7 +458,6 @@ public sealed class Plugin : BasePlugin
     internal void Tick()
     {
         TickMeasurementFinalization();
-        TickDevCommand();
 
         if (!_pendingSpawn)
             return;
@@ -1210,138 +1205,6 @@ public sealed class Plugin : BasePlugin
         _hasPreviousResult = false;
         _previousDps = 0f;
 
-    }
-
-    private void TickDevCommand()
-    {
-        float now =
-            Time.unscaledTime;
-
-        if (
-            now <
-            _nextDevCommandCheck
-        )
-        {
-            return;
-        }
-
-        _nextDevCommandCheck =
-            now + 0.25f;
-
-        string path =
-            System.IO.Path.Combine(
-                Paths.ConfigPath,
-                DevCommandFile
-            );
-
-        if (
-            !System.IO.File.Exists(
-                path
-            )
-        )
-        {
-            return;
-        }
-
-        try
-        {
-            string command =
-                System.IO.File
-                    .ReadAllText(path)
-                    .Trim()
-                    .ToLowerInvariant();
-
-            System.IO.File.Delete(
-                path
-            );
-
-            Log.LogInfo(
-                $"[DEV] Remote command: " +
-                $"{command}"
-            );
-
-            switch (command)
-            {
-                case "next-floor":
-                    DevJumpToNextSpawnRoom();
-                    break;
-
-                case "cheat-state":
-                    Log.LogInfo(
-                        $"[DEV] HasCheated=" +
-                        $"{UI.Console.CheatConsole.HasCheated}"
-                    );
-                    break;
-
-                default:
-                    Log.LogWarning(
-                        $"[DEV] Unknown command: " +
-                        $"{command}"
-                    );
-                    break;
-            }
-        }
-        catch (
-            System.Exception ex)
-        {
-            Log.LogError(
-                $"[DEV] Command failed: " +
-                $"{ex}"
-            );
-        }
-    }
-
-    private void DevJumpToNextSpawnRoom()
-    {
-        try
-        {
-            DungeonGenerator generator =
-                DungeonGenerator
-                    ._Instance_k__BackingField;
-
-            if (generator == null)
-            {
-                Log.LogError(
-                    "[DEV] DungeonGenerator unavailable"
-                );
-
-                return;
-            }
-
-            DebugLog(
-                $"[DEV] Before jump " +
-                $"floor={generator.CurrentFloorIndex} " +
-                $"room={generator.CurrentRoomIdx}"
-            );
-
-            DungeonGenerator.PlannedRoom target =
-                generator
-                    .GetJumpToNextSpawnRoom();
-
-            if (target == null)
-            {
-                Log.LogError(
-                    "[DEV] Next spawn room unavailable"
-                );
-
-                return;
-            }
-
-            generator.GoToNextRoom(
-                target
-            );
-
-            DebugLog(
-                "[DEV] Next-floor transition requested"
-            );
-        }
-        catch (
-            System.Exception ex)
-        {
-            Log.LogError(
-                $"[DEV] Jump failed: {ex}"
-            );
-        }
     }
 
 }

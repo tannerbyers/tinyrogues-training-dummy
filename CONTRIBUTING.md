@@ -17,6 +17,8 @@ Requirements:
 - BepInEx 6 Unity IL2CPP interop assemblies for the local build
 - Tiny Rogues 0.2.8.6 for runtime testing
 
+The project references local BepInEx and Tiny Rogues IL2CPP interop assemblies under `lib/`. They are intentionally ignored and must be obtained from your own local installation. Do not commit or redistribute proprietary game assemblies. The repository does not currently have build CI because those references cannot be supplied legally in a clean public workflow.
+
 Build and validate with:
 
 ```sh
@@ -28,9 +30,11 @@ git diff --check
 
 Do not commit `bin/`, `obj/`, `dist/`, reverse-engineering files, or local game/development helpers. The package script produces release archives under `dist/` for local inspection.
 
+For the runtime map and invariants, see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The minimum manual smoke test is listed there.
+
 ## Project constraints
 
-The training dummy is deliberately not registered in `EnemyManager.aliveEnemies`. This keeps room completion, combat state, and weapon/equipment inventory behavior normal. Changes must preserve that isolation.
+The training dummy is deliberately not registered in `EnemyManager.aliveEnemies`. This keeps room completion, combat state, and weapon/equipment inventory behavior normal. Changes must preserve that isolation. Do not restore auto-aim by adding it to the enemy manager.
 
 The dummy is manually targetable and damageable. Native controller auto-aim is deferred. Do not add the dummy to the enemy manager or introduce broad targeting patches without an issue and runtime evidence.
 
